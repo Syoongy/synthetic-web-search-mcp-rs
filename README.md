@@ -71,7 +71,7 @@ synthetic-web-search-mcp-rs/
 ├── src/
 │   ├── main.rs            # Entry point and MCP server setup
 │   ├── lib.rs             # Library exports
-│   └── tools.rs           # MCP tool implementations
+│   └── search.rs          # Search tool implementation
 └── README.md              # This file
 ```
 
