@@ -48,6 +48,7 @@ Search the web using the Synthetic API.
 **Arguments:**
 
 - `query` (String): The search query string
+- `limit` (Option<usize>): Maximum number of results to return (default: 5)
 
 **Returns:**
 An array of search results with the following fields:
@@ -62,6 +63,11 @@ An array of search results with the following fields:
 - **Endpoint:** https://api.synthetic.new/v2/search
 - **Method:** POST
 - **Authentication:** Bearer token (SYNTHETIC_API_KEY)
+
+## Environment Variables
+
+- `SYNTHETIC_API_KEY` (Required): Your Synthetic API key
+- `DEFAULT_SEARCH_LIMIT` (Optional): Default maximum number of results to return (default: 5)
 
 ## Project Structure
 
