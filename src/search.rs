@@ -12,6 +12,8 @@ use serde::{Deserialize, Serialize};
 pub struct SearchRequest {
     #[schemars(description = "The search query")]
     pub query: String,
+    #[schemars(description = "Maximum number of results to return. Overrides the global default.")]
+    pub limit: Option<usize>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -35,15 +37,17 @@ pub struct SearchResult {
 
 pub struct SearchService {
     api_key: String,
+    default_limit: usize,
     client: reqwest::Client,
     tool_router: ToolRouter<Self>,
 }
 
 #[tool_router]
 impl SearchService {
-    pub fn new(api_key: String) -> Self {
+    pub fn new(api_key: String, default_limit: usize) -> Self {
         Self {
             api_key,
+            default_limit,
             client: reqwest::Client::new(),
             tool_router: Self::tool_router(),
         }
@@ -52,7 +56,7 @@ impl SearchService {
     #[tool(description = "Search the web using Synthetic API and return relevant results")]
     async fn search_web(
         &self,
-        Parameters(SearchRequest { query }): Parameters<SearchRequest>,
+        Parameters(SearchRequest { query, limit }): Parameters<SearchRequest>,
     ) -> Result<Json<SearchResponse>, McpError> {
         if query.is_empty() {
             return Err(McpError::invalid_params(
@@ -91,7 +95,11 @@ impl SearchService {
                 }
 
                 match resp.json::<SearchResponse>().await {
-                    Ok(data) => Ok(Json(data)),
+                    Ok(mut data) => {
+                        let effective_limit = limit.unwrap_or(self.default_limit);
+                        data.results.truncate(effective_limit);
+                        Ok(Json(data))
+                    }
                     Err(e) => Err(McpError::parse_error(
                         format!("Failed to parse response: {}", e),
                         None,

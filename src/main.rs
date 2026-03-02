@@ -9,7 +9,12 @@ async fn main() -> anyhow::Result<()> {
         anyhow::anyhow!("ERROR: SYNTHETIC_API_KEY environment variable is required")
     })?;
 
-    let search_service = SearchService::new(api_key);
+    let default_limit: usize = env::var("DEFAULT_SEARCH_LIMIT")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(5);
+
+    let search_service = SearchService::new(api_key, default_limit);
 
     let transport = stdio();
 
